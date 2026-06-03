@@ -30,7 +30,7 @@ public class GreetingController {
             name = namePath != null ? namePath : config.getDefaultName();
         }
 
-        String retorno = String.format("%s %s!!!", config.getDefaultName(), name);
+        String retorno = String.format("%s %s!!!", config.getGreeting(), name);
         return ResponseEntity.ok(retorno);
     }
 
