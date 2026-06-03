@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>br.mn</groupId>
-    <artifactId>gretting-service</artifactId>
+    <artifactId>greeting-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name/>
     <description/>
