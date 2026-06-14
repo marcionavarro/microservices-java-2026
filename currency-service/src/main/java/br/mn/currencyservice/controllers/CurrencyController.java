@@ -17,6 +17,9 @@ public class CurrencyController {
     @Value("${server.port}")
     private String port;
 
+    @Value("${convert.sleep:0}")
+    private int sleep;
+
     private final CurrencyRepository repository;
 
     public CurrencyController(CurrencyRepository repository) {
@@ -28,6 +31,8 @@ public class CurrencyController {
         @RequestParam String source,
         @RequestParam String target
     ) throws Exception {
+        Thread.sleep(sleep);
+
         source = source.toUpperCase();
         target = target.toUpperCase();
 
@@ -44,5 +49,9 @@ public class CurrencyController {
         );
 
         return ResponseEntity.ok(dto);
+
+        /* Simulate an error for testing retry mechanism */
+        //return ResponseEntity.badRequest().body(dto);
+        //return ResponseEntity.internalServerError().body(dto);
     }
 }
