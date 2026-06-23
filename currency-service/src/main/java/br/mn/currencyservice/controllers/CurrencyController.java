@@ -1,5 +1,7 @@
 package br.mn.currencyservice.controllers;
 
+import br.mn.currencyservice.clients.BCBClient;
+import br.mn.currencyservice.clients.BCBResponse;
 import br.mn.currencyservice.dtos.CurrencyDTO;
 import br.mn.currencyservice.entities.CurrencyEntity;
 import br.mn.currencyservice.repositories.CurrencyRepository;
@@ -21,9 +23,11 @@ public class CurrencyController {
     private int sleep;
 
     private final CurrencyRepository repository;
+    private final BCBClient bcbClient;
 
-    public CurrencyController(CurrencyRepository repository) {
+    public CurrencyController(CurrencyRepository repository, BCBClient bcbClient) {
         this.repository = repository;
+        this.bcbClient = bcbClient;
     }
 
     @GetMapping("/convert")
@@ -36,10 +40,38 @@ public class CurrencyController {
         source = source.toUpperCase();
         target = target.toUpperCase();
 
-        CurrencyEntity currency = repository.findBySourceCurrencyAndTargetCurrency(source, target)
-            .orElseThrow(() -> new Exception("Currency not found"));
+        String dataSource = "None";
+        CurrencyEntity currency = new CurrencyEntity();
+        currency.setSourceCurrency(source);
+        currency.setTargetCurrency(target);
 
-        String environment = "Currency-service running on Port: " + port;
+        if (source.equals(target)) {
+            currency.setConversionRate(1.0);
+        } else {
+            try {
+                Double sourceRate = 1.0;
+                Double targetRate = 1.0;
+                if (!source.equals("BRL")) {
+                    BCBResponse response = bcbClient.getBCBCurrency(source);
+                    if (response.value().isEmpty()) throw new Exception("Currency not found for " + source);
+                    sourceRate = response.value().get(0).cotacaoVenda();
+                }
+                if (!target.equals("BRL")) {
+                    BCBResponse response = bcbClient.getBCBCurrency(target);
+                    if (response.value().isEmpty()) throw new Exception("Currency not found for " + target);
+                    targetRate = response.value().get(0).cotacaoVenda();
+                }
+                currency.setConversionRate(sourceRate / targetRate);
+                dataSource = "Banco central do Brasil";
+            } catch (Exception e) {
+                currency = repository.findBySourceCurrencyAndTargetCurrency(source, target)
+                    .orElseThrow(() -> new Exception("Currency not found for"));
+                dataSource = "Local Database";
+            }
+        }
+
+
+        String environment = "Currency-service running on Port: " + port + " - " + dataSource;
 
         CurrencyDTO dto = new CurrencyDTO(
             currency.getSourceCurrency(),
