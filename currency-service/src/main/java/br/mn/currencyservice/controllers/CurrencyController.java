@@ -45,7 +45,9 @@ public class CurrencyController {
 
         String dataSource = "Cache";
         String nameCache = "currency";
-        CurrencyEntity currency = cacheManager.getCache(nameCache).get(source + target, CurrencyEntity.class);
+        //Desabilitar o cache para visualizar melhor o Load Balanced
+        //CurrencyEntity currency = cacheManager.getCache(nameCache).get(source + target, CurrencyEntity.class);
+        CurrencyEntity currency = null;
         if (currency == null) {
             currency = new CurrencyEntity();
             currency.setSourceCurrency(source);
