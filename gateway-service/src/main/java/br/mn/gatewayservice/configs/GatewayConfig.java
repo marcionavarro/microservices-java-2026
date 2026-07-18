@@ -16,7 +16,9 @@ public class GatewayConfig {
                     .addRequestHeader("X-User-Name", "Marcio Navarro"))
                 .uri("http://httpbin.org"))
             .route(p -> p.path("/products/**").uri("lb://product-service"))
+            .route(p -> p.path("/ws/products/**").uri("lb://product-service"))
             .route(p -> p.path("/currency/**").uri("lb://currency-service"))
+            .route(p -> p.path("/ws/currency/**").uri("lb://currency-service"))
             .route(p -> p.path("/auth/**").uri("lb://auth-service"))
             .build();
     }
